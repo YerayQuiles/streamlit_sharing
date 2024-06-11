@@ -1,0 +1,7 @@
+streamlit
+plotly
+wordcloud
+matplotlib
+nltk
+reportlab
+streamlit_authenticator
