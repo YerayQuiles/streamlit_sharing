@@ -25,12 +25,12 @@ questions = [
 
 # Cargar el logo desde un archivo
 
-logo_path = "C:/Users/yeray/OneDrive/Escritorio/NexiHealth/PHQ-9/logo.png"  # Reemplaza con la ruta correcta de tu logo
+#logo_path = "C:/Users/yeray/OneDrive/Escritorio/NexiHealth/PHQ-9/logo.png"  # Reemplaza con la ruta correcta de tu logo
 # Centrar la imagen del logo dentro de una columna
-col1, col2, col3 = st.columns([1, 3, 1])  # Columnas vacías a los lados para centrar
+#col1, col2, col3 = st.columns([1, 3, 1])  # Columnas vacías a los lados para centrar
 
-with col2:
-    st.image(logo_path, width=400 )
+#with col2:
+    #st.image(logo_path, width=400 )
 
 
 # ______________________________________________________________________________________________________________________________________________
