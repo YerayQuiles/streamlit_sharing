@@ -37,33 +37,10 @@ questions = [
 # ____________________________________________________FORMULARIO________________________________________________________________________________
 # ______________________________________________________________________________________________________________________________________________
 
-def show_personal_info_form():
-    st.title("Información Personal")
-    st.info("Por favor, proporciona tu información personal antes de responder las preguntas.")
-    
-    # Crear un formulario para los datos personales
-    with st.form(key='personal_info_form'):
-        name = st.text_input("Nombre")
-        last_name = st.text_input("Apellidos")
-        age = st.number_input("Edad", min_value=0, max_value=120)
-        submit_button = st.form_submit_button(label='Continuar')
-        
-        if submit_button:
-            if name and last_name and age:
-                st.session_state.personal_info = {
-                    "name": name,
-                    "last_name": last_name,
-                    "age": age
-                }
-                st.session_state.show_questions = True
-                st.experimental_rerun()
-            else:
-                st.warning("Por favor, completa todos los campos antes de continuar.")
-
 def show_form():
     st.title("Formulario")
     st.info(
-        f"Hola {st.session_state.personal_info['name']}, responde las siguientes preguntas con sinceridad. Utiliza el recuadro de información adicional para escribir cualquier información que creas que puede ser relevante para que intentemos ayudarte de la mejor forma posible."
+        f"Hola, responde las siguientes preguntas con sinceridad. Utiliza el recuadro de información adicional para escribir cualquier información que creas que puede ser relevante para que intentemos ayudarte de la mejor forma posible."
     )
     st.markdown("---")  # Línea separadora
 
@@ -113,7 +90,7 @@ def show_report():
     # Mostrar la tabla con las respuestas
     df = pd.DataFrame(st.session_state.responses)
     st.write(df, wide_mode=True)
-    st.info("Puedes ampliar, filtrar o descargar la tabla en formato CSV pinchando sobre los iconos de la esquina superior derecha")
+    #st.info("Puedes ampliar, filtrar o descargar la tabla en formato CSV pinchando sobre los iconos de la esquina superior derecha")
 
     
     
@@ -250,10 +227,7 @@ if 'personal_info' not in st.session_state:
     st.session_state.personal_info = False
 
 # Mostrar el formulario de información personal si no se ha completado
-if not st.session_state.personal_info:
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        show_personal_info_form()
+
 # Mostrar el formulario de preguntas si se ha completado el formulario de información personal
 elif not st.session_state.show_report:
     col1, col2, col3 = st.columns([1, 2, 1])
