@@ -5,9 +5,8 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
-import speech_recognition as sr
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+#from reportlab.lib.pagesizes import letter
+#from reportlab.pdfgen import canvas
 
 # Descargar los datos de VADER para el análisis de sentimientos
 nltk.download('vader_lexicon')
