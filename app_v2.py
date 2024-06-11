@@ -229,7 +229,7 @@ if 'personal_info' not in st.session_state:
 # Mostrar el formulario de información personal si no se ha completado
 
 # Mostrar el formulario de preguntas si se ha completado el formulario de información personal
-elif not st.session_state.show_report:
+if not st.session_state.show_report:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         show_form()
