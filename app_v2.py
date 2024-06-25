@@ -215,7 +215,7 @@ def show_password_prompt():
     with col2:
         st.info("Si estás interesado en probar la herramienta y saber más sobre ella no dudes en pedirnos acceso escribiendo a info@nexihealth.es")
 
-        st.title("Ingresa la contraseñaA")
+        st.title("Ingresa la contraseña")
         password = st.text_input("Contraseña", type="password")
         if st.button("Enviar"):
             if password == "Nexi":
