@@ -7,6 +7,16 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
+# Descargar recursos necesarios de NLTK
+nltk.download('stopwords')
+nltk.download('punkt')
 
 # Descargar los datos de VADER para el análisis de sentimientos
 nltk.download('vader_lexicon')
@@ -21,12 +31,12 @@ questions_anxiety = [
         "text_input": True
     },
     {
-        "question": "¿Has tenido sensación de tensión, impposibilidad de relajarse, llanto fácil o temblores?",
+        "question": "¿Has tenido sensación de tensión, imposibilidad de relajarse, llanto fácil o temblores?",
         "options": ["---", "Ninguno", "Leve", "Moderado", "Grave", "Muy grave"],
         "text_input": True
     },
     {
-        "question": "¿Has tenido temors, por ejmplo a la oscuridad, a quedarse solo o a las multitudes?",
+        "question": "¿Has tenido temores, por ejemplo a la oscuridad, a quedarse solo o a las multitudes?",
         "options": ["---", "Ninguno", "Leve", "Moderado", "Grave", "Muy grave"],
         "text_input": True
     },
@@ -46,7 +56,7 @@ questions_anxiety = [
         "text_input": True
     },
     {
-        "question": "¿Has tenido dolores, moletias musculares o rigidez?",
+        "question": "¿Has tenido dolores, molestias musculares o rigidez?",
         "options": ["---", "Ninguno", "Leve", "Moderado", "Grave", "Muy grave"],
         "text_input": True
     },
@@ -81,7 +91,7 @@ questions_anxiety = [
         "text_input": True
     },
     {
-        "question": "Consideras que en una conversación te encuentras tenso, inquieto, con tics, taquicardia, sacudidas o sudoración excesivas?",
+        "question": "¿Consideras que en una conversación te encuentras tenso, inquieto, con tics, taquicardia, sacudidas o sudoración excesivas?",
         "options": ["---", "Ninguno", "Leve", "Moderado", "Grave", "Muy grave"],
         "text_input": True
     },
@@ -408,6 +418,98 @@ def show_report():
             }
         ))
         st.plotly_chart(fig)
+        
+        
+        
+        # Calcular indice de ansiedad psquica o somática
+        questions_ansiedad_psiquica = [
+        "¿Has tenido un estado de ánimo ansioso? Como preocupación, irritabilidad o anticipación de lo peor.",
+        "¿Has tenido sensación de tensión, imposibilidad de relajarse, llanto fácil o temblores?",
+        "¿Has tenido temores, por ejemplo a la oscuridad, a quedarse solo o a las multitudes?",
+        "¿Has tenido insomnio?",
+        "¿Has tenido dificultad para concentrarte o mala memoria?",
+        "¿Has tenido un estado de ánimo depresivo? Como pérdida de interes, insatisfacción o cambios de humor",
+        "¿Consideras que en una conversación te encuentras tenso, inquieto, con tics, taquicardia, sacudidas o sudoración excesivas?"
+        ]
+        ansiedad_psiquica_index = 0
+
+        for response in st.session_state.responses:
+            if response["question"] in questions_ansiedad_psiquica:
+                ansiedad_psiquica_index += option_map.get(response["selected_option"], 0)
+
+        print(f"Índice de ansiedad psíquica: {ansiedad_psiquica_index}")
+
+
+        questions_ansiedad_somatica = [
+            "¿Has tenido dolores, molestias musculares o rigidez?",
+            "¿Has tenido zumbidos de oídos, visión borrosa, sofocos o escalofrios?",
+            "¿Has tenido palpitaciones, dolor en el pecho o sensación de hormigueo?",
+            "¿Has tenido dificultad para respirar, suspiros o sensación de opresión en el pecho?.",
+            "¿Has tenido náuseas, vómitos, diarrea, dolor abdominal, sensación de hinchazón?",
+            "¿Has tenido un aumento de la frecuencia urinaria, dolor al orinar, falta de deseo sexual, disfunción eréctil?",
+            "¿Has tenido sequedad de boca, sudoración, mareos, sofocos, sensación de frío?"
+            
+        ]
+        ansiedad_somatica_index = 0
+
+        for response in st.session_state.responses:
+            if response["question"] in questions_ansiedad_somatica:
+                ansiedad_somatica_index += option_map.get(response["selected_option"], 0)
+
+        print(f"Índice de ansiedad psíquica: {ansiedad_somatica_index}")
+        
+        #st.info(f"El grado de ansiedad psíquica es: {ansiedad_psiquica_index}")
+        #st.info(f"El grado de ansiedad somática es: {ansiedad_somatica_index}")
+        # Cálculo de porcentajes
+        max_index = 28  # Valor máximo para ambos índices
+        porcentaje_ansiedad_psiquica = round((ansiedad_psiquica_index / max_index) * 100, 1)
+        porcentaje_ansiedad_somatica = round((ansiedad_somatica_index / max_index) * 100, 1)
+       # Mostrar información con Streamlit
+        st.info(f"El grado de ansiedad psíquica es: {porcentaje_ansiedad_psiquica}%")
+        st.info(f"El grado de ansiedad somática es: {porcentaje_ansiedad_somatica}%")
+
+        # Colores personalizados
+        colors1 = ['gray'] * 3  # Inicialmente gris para todos los sectores
+        colors1[0] = 'blue'    # Primer sector (psíquica) en verde
+        colors1[1] = 'gray'     # Segundo sector (somática) en azul
+        
+        # Colores personalizados
+        colors2 = ['gray'] * 3  # Inicialmente gris para todos los sectores
+        colors2[0] = 'green'    # Primer sector (psíquica) en verde
+        colors2[1] = 'gray'     # Segundo sector (somática) en azul
+
+        # Crear subplots: utilizar 'domain' para el tipo de subplot de Pie
+        fig = make_subplots(rows=1, cols=2, specs=[[{'type':'domain'}, {'type':'domain'}]])
+
+        # Añadir trazos de Pie para cada tipo de ansiedad
+        fig.add_trace(go.Pie(
+            values=[porcentaje_ansiedad_psiquica, 100 - porcentaje_ansiedad_psiquica], 
+            labels=["Psíquica", "No definida"],
+            marker=dict(colors=colors1),
+            name="",
+            legendgroup="group1"),  # Definir grupo de leyendas para agrupar este y otros
+            1, 1)
+
+        fig.add_trace(go.Pie(
+            values=[porcentaje_ansiedad_somatica, 100 - porcentaje_ansiedad_somatica],
+            labels=["Somática", "No definida"],
+            marker=dict(colors=colors2),
+            name="",
+            legendgroup="group1"),  # Mismo grupo de leyendas para agrupar este y otros
+            1, 2)
+
+        # Usar `hole` para crear un gráfico de tipo donut
+        fig.update_traces(hole=.4, hoverinfo="label+percent", textinfo='label+percent')
+
+        # Actualizar el diseño del gráfico
+        fig.update_layout(
+            title_text="Tipo de Ansiedad",
+        )
+
+        # Mostrar el gráfico utilizando Streamlit
+        st.plotly_chart(fig)
+       
+        
     
     # _______________________________________________________DEPRESIÓN________________________________________________________________________________
     # Calcular la puntuación HAM-D
@@ -489,8 +591,45 @@ def show_report():
     # Generar la nube de palabras a partir de las respuestas adicionales
     additional_texts = " ".join([response["text_response"] for response in st.session_state.responses if response["text_response"]])
     
-    if additional_texts:
-        wordcloud = WordCloud(width=800, height=400, background_color='white').generate(additional_texts)
+    # Función para limpiar y procesar el texto
+    def clean_text(text):
+        # Convertir a minúsculas
+        text = text.lower()
+        
+        # Eliminar URLs
+        text = re.sub(r'https?://\S+', '', text)
+        
+        # Eliminar menciones
+        text = re.sub(r'@\w+', '', text)
+        
+        # Eliminar hashtags
+        text = re.sub(r'#\w+', '', text)
+        
+        # Eliminar signos de puntuación
+        text = re.sub(r'[^\w\s]', '', text)
+        
+        # Tokenizar el texto
+        tokens = nltk.word_tokenize(text)
+        
+        # Eliminar stopwords
+        stop_words = set(stopwords.words('spanish'))
+        tokens = [token for token in tokens if token not in stop_words]
+        
+        # Aplicar stemming
+        stemmer = PorterStemmer()
+        tokens = [stemmer.stem(token) for token in tokens]
+        
+        # Unir los tokens de vuelta a un texto
+        cleaned_text = ' '.join(tokens)
+        
+        return cleaned_text
+
+    # Limpiar el texto en additional_texts
+    cleaned_text = clean_text(additional_texts)
+    
+    
+    if cleaned_text:
+        wordcloud = WordCloud(width=800, height=400, background_color='white').generate(cleaned_text)
         
         st.subheader("Nube de palabras de la información adicional:")
         fig, ax = plt.subplots(figsize=(10, 5))
@@ -499,29 +638,29 @@ def show_report():
         with st.container():
             st.pyplot(fig)
             
-        # Análisis de sentimiento
+                # Inicializar el analizador de sentimiento
         sid = SentimentIntensityAnalyzer()
-        sentiments = [sid.polarity_scores(text) for text in additional_texts.split()]
+
+        # Analizar sentimiento para el texto completo
+        #st.info(cleaned_text)
+        sentiment = sid.polarity_scores(cleaned_text)
 
         # Calcular el promedio de los sentimientos
         avg_sentiment = {
-            "neg": sum(s["neg"] for s in sentiments) / len(sentiments),
-            "neu": sum(s["neu"] for s in sentiments) / len(sentiments),
-            "pos": sum(s["pos"] for s in sentiments) / len(sentiments),
-            "compound": sum(s["compound"] for s in sentiments) / len(sentiments)
+            "neg": sentiment["neg"],
+            "neu": sentiment["neu"],
+            "pos": sentiment["pos"],
         }
+
+        # Mostrar el análisis de sentimiento
         st.subheader("Análisis de sentimiento de la información adicional:")
-        col1, col2 = st.columns([1,2])
+        col1, col2 = st.columns([1, 2])
 
         with col1:
             st.markdown(f"##### Score del análisis de sentimiento:")
-
-             # Mostrar los puntajes promedio de sentimiento en recuadros con colores
             st.markdown(f'<div style="padding:10px;background-color:red;color:white;border-radius:5px;">Negativo: {avg_sentiment["neg"]:.2f}</div>', unsafe_allow_html=True)
             st.markdown(f'<div style="padding:10px;background-color:gray;color:white;border-radius:5px;">Neutro: {avg_sentiment["neu"]:.2f}</div>', unsafe_allow_html=True)
             st.markdown(f'<div style="padding:10px;background-color:green;color:white;border-radius:5px;">Positivo: {avg_sentiment["pos"]:.2f}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div style="padding:10px;background-color:blue;color:white;border-radius:5px;">Compuesto: {avg_sentiment["compound"]:.2f}</div>', unsafe_allow_html=True)
-
 
         with col2:
             # Crear una gráfica de barras con Plotly
@@ -529,13 +668,11 @@ def show_report():
                 go.Bar(name='Negativo', x=['Sentimiento'], y=[avg_sentiment['neg']], marker_color='red'),
                 go.Bar(name='Neutro', x=['Sentimiento'], y=[avg_sentiment['neu']], marker_color='gray'),
                 go.Bar(name='Positivo', x=['Sentimiento'], y=[avg_sentiment['pos']], marker_color='green'),
-                go.Bar(name='Compuesto', x=['Sentimiento'], y=[avg_sentiment['compound']], marker_color='blue')
             ])
 
             # Actualizar el diseño de la gráfica para una mejor visualización
             fig.update_layout(barmode='group', title="Resultados del Análisis de Sentimiento", xaxis_title="Tipo de Sentimiento", yaxis_title="Promedio")
-            with st.container():
-                st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True)
             
     # Crear tres columnas para alinear el botón "Atrás" a la derecha
     _, _, col_atras = st.columns([1, 10, 1])
